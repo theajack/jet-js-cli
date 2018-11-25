@@ -42,7 +42,7 @@
   },
   "devDependencies": {
     "commander": "^2.19.0"
-  }
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/theajack/jet-js-cli.git"
@@ -56,5 +56,5 @@
   "bugs": {
     "url": "https://github.com/theajack/jet-js-cli/issues"
   },
-  "homepage": "https://github.com/theajack/jet-js-cli#readme",
+  "homepage": "https://github.com/theajack/jet-js-cli#readme"
 }
