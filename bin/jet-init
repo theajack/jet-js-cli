@@ -1,0 +1,107 @@
+#!/usr/bin/env node
+
+const program = require('commander');
+const download = require('download-git-repo');
+const inquirer = require('inquirer');
+const handlebars = require('handlebars');
+const progress = require('log-progress');
+const fs = require('fs');
+const ora = require('ora');
+const chalk = require('chalk');
+
+const gitUrl='github:theajack/jet-template';
+const log = require('../lib/log')
+
+/**
+ * Settings.
+ */
+program.usage('<name>')
+
+program.on('--help', () => {
+  log.n('  Examples:')
+  log.n()
+  log.n(chalk.gray('    # create a new project with an official template'))
+  log.n('    $ jet init my-project')
+  log.n()
+  log.n()
+})
+
+
+let date=new Date();
+
+function tick(value,percent){
+  if(percent>90){
+    this.pause(value);
+  }
+}
+function start(info){
+  progress.start({
+    title:'Downloading Jet template.',
+    ontick:tick,
+    time:100,
+    total:199
+  });
+}
+
+function help (){
+  program.parse(process.argv)
+  if (program.args.length < 1) 
+    return program.help()
+  else
+    init(program.args[0])
+}
+console.log()
+help()
+function init(name){
+  inquirer.prompt([
+    {
+      type: 'input',
+      name: 'name',
+      default:name,
+      message: 'Input project name'
+    },{
+      type: 'input',
+      name: 'description',
+      default:'Jet project',
+      message: 'Input description'
+    },{
+      type: 'input',
+      name: 'author',
+      default:'author',
+      message: 'Input author name'
+    }
+  ]).then((answers) => {
+    answers.description=answers.description||'Jet project'
+    answers.author=answers.author||'author'
+    downloadProject(answers)
+  })
+}
+
+function downloadProject(answers) {
+  log.n()
+  start();
+  // const spinner = ora('Downloading Jet template.')
+  // log.start()
+  // setTimeout(function(){
+  //   spinner.succeed();
+  // },2000)
+  download(gitUrl,answers.name,(err) => {
+    if(progress.isPause()){
+      progress.start();
+    }
+    
+    //spinner.stop()
+    const fileName = `${answers.name}/build.config.json`;
+    const content = fs.readFileSync(fileName).toString();
+    const result = handlebars.compile(content)(answers);
+    fs.writeFileSync(fileName, result);
+    if(err){
+      progress.fail('Failed')
+      log.red('Project creation failed');
+    }else{
+      progress.complete('Succeed')
+      log.green('Project creation succeed! in '+((new Date())-date)+' ms.');
+    }
+    log.n();
+  })
+}

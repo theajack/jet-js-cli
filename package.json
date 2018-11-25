@@ -1,0 +1,60 @@
+{
+  "name": "jet-js-cli",
+  "version": "1.0.9",
+  "description": "Jet-js framework cli tool",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "bin": {
+    "jet": "bin/jet",
+    "jet-init": "bin/jet-init",
+    "jet-build": "bin/jet-build",
+    "jet-run": "bin/jet-run"
+  },
+  "author": "theajack",
+  "license": "MIT",
+  "dependencies": {
+    "@babel/core": "^7.1.6",
+    "@babel/preset-env": "^7.1.6",
+    "camel-case": "3.0.x",
+    "chalk": "^2.4.1",
+    "clean-css": "4.2.x",
+    "commander": "2.17.x",
+    "download-git-repo": "^1.1.0",
+    "gulp": "^3.9.1",
+    "gulp-babel": "^8.0.0",
+    "gulp-clean-css": "^4.0.0",
+    "gulp-htmlmin": "^5.0.1",
+    "gulp-if": "^2.0.2",
+    "gulp-load-plugins": "^1.5.0",
+    "gulp-uglify": "^3.0.1",
+    "handlebars": "^4.0.12",
+    "he": "1.2.x",
+    "inquirer": "^6.2.0",
+    "less": "^3.8.1",
+    "lite-server": "^2.4.0",
+    "log-progress": "^1.0.5",
+    "log-symbols": "^2.2.0",
+    "ora": "^3.0.0",
+    "param-case": "2.1.x",
+    "relateurl": "0.2.x",
+    "uglify-js": "3.4.x"
+  },
+  "devDependencies": {
+    "commander": "^2.19.0"
+  }
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/theajack/jet-template.git"
+  },
+  "keywords": [
+    "Jet.js",
+    "cli tools",
+    "build tools",
+    "framework tools"
+  ],
+  "bugs": {
+    "url": "https://github.com/theajack/jet-template/issues"
+  },
+  "homepage": "https://github.com/theajack/jet-template#readme",
+}

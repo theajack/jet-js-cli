@@ -1,0 +1,21 @@
+#!/usr/bin/env node
+
+require('commander')
+  .version(require('../package').version)
+  .usage('<command> [options]')
+  .command('init', '初始化项目')
+  .command('run', '开发环境运行Jet项目')
+  .command('build', '打包压缩项目')
+  .parse(process.argv)
+
+
+
+
+
+
+
+
+
+
+
+

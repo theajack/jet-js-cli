@@ -1,0 +1,14 @@
+#!/usr/bin/env node
+
+const package = require('../lib/getPackage');
+const server = require('lite-server');
+const chalk = require('chalk');
+
+console.log()
+if(package===null){
+    console.log(chalk.green('--Running http server ...'));
+}else{
+    console.log(chalk.green('--Running Jet prject ['+package.name+']...'));
+}
+console.log();
+server.server();

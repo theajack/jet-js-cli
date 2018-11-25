@@ -1,0 +1,110 @@
+#!/usr/bin/env node
+
+const gulp = require('gulp');//gulp自身 
+const gulpif = require('gulp-if');//gulp自身 
+const uglify = require('gulp-uglify');//引入压缩组件
+const babel = require('gulp-babel');//引入babel
+const htmlmin = require('../lib/htmlmin');
+const cleanCSS = require('gulp-clean-css');
+const progress = require('log-progress');
+const log = require('../lib/log')
+
+const package=require('../lib/getPackage');
+
+let jetConfig=package.jetConfig;
+let projectName=package.name;
+let htmlConfig={
+  collapseWhitespace: true,
+  compressJs:jetConfig.compressJs,
+  compressCss:jetConfig.compressCss,
+  minifyJS:jetConfig.compressJs,
+  minifyCSS:jetConfig.compressCss,
+  removeComments:true,
+  useBabel:jetConfig.buildJsWithBabel
+}
+
+let tick=function(value,percent){
+  if(percent>90){
+    this.pause();
+  }
+}
+let date=new Date();
+let start=function(info){
+  progress.start({
+    title:'Packing the Jet project.',
+    ontick:tick,
+    time:30
+  });
+}
+let complete=function(){
+  progress.complete('Jet project packaged!')
+  log.n();
+  log.green('Jet project ['+projectName+'] is packaged in '+((new Date())-date)+' ms.');
+  log.n();
+  log.n('Copy all the files in the build folder to the server directory in the production environment,\r\nand your project will work.');
+}
+let gr,info='',num=0;
+let check=function(s){
+  return function(){
+    num++;
+    info+=s+' packaged！\r\n';
+    progress.setInfo(info)
+    if(num===5){
+      complete();
+      console.log();
+    }
+  }
+}
+
+console.log()
+start();
+gulp.src('assets/**/*')
+  .pipe(gulp.dest('build/assets'))
+
+gulp.src('src/root.html')
+  .pipe(gulpif(jetConfig.compressHtml,htmlmin(htmlConfig)))
+  .pipe(gulp.dest('build/src'))
+gulp.src('index.html')
+  .pipe(htmlmin(htmlConfig))
+  .pipe(gulp.dest('build'))
+gulp.src('src/html/**/*.html')
+  .pipe(htmlmin(htmlConfig))
+  .pipe(gulp.dest('build/src/html'))
+  .on('end',check('HTML Files'))
+
+//开始打包js文件
+gulp.src('src/js/**/*.js')
+  .pipe(gulpif(jetConfig.buildJsWithBabel,babel({
+    presets: ['@babel/env']
+  })))
+  .pipe(gulpif(jetConfig.compressJs,uglify()))
+  .pipe(gulp.dest('build/src/js'))
+  .on('end',check('JS Files'))
+gulp.src('src/*.js')
+  .pipe(gulpif(jetConfig.buildJsWithBabel,babel({
+    presets: ['@babel/env']
+  })))
+  .pipe(gulpif(jetConfig.compressJs,uglify()))
+  .pipe(gulp.dest('build/src'))
+
+gulp.src('src/css/**/*.css')
+  .pipe(gulpif(jetConfig.compressCss,cleanCSS({compatibility: 'ie8'})))
+  .pipe(gulp.dest('build/src/css'))
+  .on('end',check('CSS Files'))
+gulp.src('src/css/css.conf')
+  .pipe(gulp.dest('build/src/css'))
+
+gulp.src('src/image/**/*')
+  .pipe(gulp.dest('build/src/image'))
+  .on('end',check('Images Files'))
+
+gulp.src('src/media/**/*')
+  .pipe(gulp.dest('build/src/media'))
+  .on('end',check('Media Files'))
+
+
+
+
+
+
+
