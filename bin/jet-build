@@ -1,18 +1,25 @@
 #!/usr/bin/env node
 
 const gulp = require('gulp');//gulp自身 
+const fs = require('fs');//gulp自身 
 const gulpif = require('gulp-if');//gulp自身 
 const uglify = require('gulp-uglify');//引入压缩组件
 const babel = require('gulp-babel');//引入babel
+const less = require('gulp-less');
 const htmlmin = require('../lib/htmlmin');
 const cleanCSS = require('gulp-clean-css');
 const progress = require('log-progress');
 const log = require('../lib/log')
 
 const package=require('../lib/getPackage');
+const addEnv=require('../lib/addProCode');
 
 let jetConfig=package.jetConfig;
 let projectName=package.name;
+
+if(jetConfig.buildCssWithLess||jetConfig.buildJsWithBabel){
+  jetConfig.compressHtml=true;
+}
 let htmlConfig={
   collapseWhitespace: true,
   compressJs:jetConfig.compressJs,
@@ -20,7 +27,8 @@ let htmlConfig={
   minifyJS:jetConfig.compressJs,
   minifyCSS:jetConfig.compressCss,
   removeComments:true,
-  useBabel:jetConfig.buildJsWithBabel
+  useBabel:jetConfig.buildJsWithBabel,
+  useLess:jetConfig.buildCssWithLess
 }
 
 let tick=function(value,percent){
@@ -49,58 +57,100 @@ let check=function(s){
     num++;
     info+=s+' packaged！\r\n';
     progress.setInfo(info)
-    if(num===5){
-      complete();
-      console.log();
+    if(num===6){
+      // addEnvPro(function(){
+        complete();
+        console.log();
+      // })
     }
   }
 }
 
-console.log()
 start();
-gulp.src('assets/**/*')
-  .pipe(gulp.dest('build/assets'))
 
-gulp.src('src/root.html')
-  .pipe(gulpif(jetConfig.compressHtml,htmlmin(htmlConfig)))
-  .pipe(gulp.dest('build/src'))
-gulp.src('index.html')
-  .pipe(htmlmin(htmlConfig))
-  .pipe(gulp.dest('build'))
-gulp.src('src/html/**/*.html')
-  .pipe(htmlmin(htmlConfig))
-  .pipe(gulp.dest('build/src/html'))
-  .on('end',check('HTML Files'))
+task();
 
-//开始打包js文件
-gulp.src('src/js/**/*.js')
-  .pipe(gulpif(jetConfig.buildJsWithBabel,babel({
-    presets: ['@babel/env']
-  })))
-  .pipe(gulpif(jetConfig.compressJs,uglify()))
-  .pipe(gulp.dest('build/src/js'))
-  .on('end',check('JS Files'))
-gulp.src('src/*.js')
-  .pipe(gulpif(jetConfig.buildJsWithBabel,babel({
-    presets: ['@babel/env']
-  })))
-  .pipe(gulpif(jetConfig.compressJs,uglify()))
-  .pipe(gulp.dest('build/src'))
+// gulp.src('src/root.html')
+//   .pipe(gulpif(jetConfig.compressHtml,htmlmin(htmlConfig)))
+//   .pipe(gulp.dest('build/src'))
 
-gulp.src('src/css/**/*.css')
-  .pipe(gulpif(jetConfig.compressCss,cleanCSS({compatibility: 'ie8'})))
-  .pipe(gulp.dest('build/src/css'))
-  .on('end',check('CSS Files'))
-gulp.src('src/css/css.conf')
-  .pipe(gulp.dest('build/src/css'))
+function task(){
+  gulp.src('assets/**/*')
+    .pipe(gulp.dest('build/assets'))
 
-gulp.src('src/image/**/*')
-  .pipe(gulp.dest('build/src/image'))
-  .on('end',check('Images Files'))
+  gulp.src('src/root.html')
+    .pipe(gulpif(jetConfig.compressHtml,htmlmin(htmlConfig)))
+    .pipe(gulp.dest('build/src'))
+  gulp.src('index.html')
+    .pipe(htmlmin(htmlConfig))
+    .pipe(gulp.dest('build'))
+  gulp.src('src/html/**/*.html')
+    .pipe(htmlmin(htmlConfig))
+    .pipe(gulp.dest('build/src/html'))
+    .on('end',check('HTML Files'))
 
-gulp.src('src/media/**/*')
-  .pipe(gulp.dest('build/src/media'))
-  .on('end',check('Media Files'))
+  //js文件
+  gulp.src('src/js/**/*.js')
+    .pipe(gulpif(jetConfig.buildJsWithBabel,babel({
+      presets: ['@babel/env']
+    })))
+    .pipe(gulpif(jetConfig.compressJs,uglify()))
+    .pipe(gulp.dest('build/src/js'))
+    .on('end',check('JS Files'))
+    
+  gulp.src('src/root.js')
+    .pipe(gulpif(jetConfig.buildJsWithBabel,babel({
+      presets: ['@babel/env']
+    })))
+    .pipe(gulpif(jetConfig.compressJs,uglify()))
+    .pipe(gulp.dest('build/src'))
+
+  gulp.src('src/config.js')
+    .pipe(addEnv(jetConfig))
+    .pipe(gulpif(jetConfig.buildJsWithBabel,babel({
+      presets: ['@babel/env']
+    })))
+    .pipe(gulpif(jetConfig.compressJs,uglify()))
+    .pipe(gulp.dest('build/src'))
+
+  //css 文件
+  gulp.src('src/css/**/*.css')
+    .pipe(gulpif(jetConfig.compressCss,cleanCSS({compatibility: 'ie8'})))
+    .pipe(gulp.dest('build/src/css'))
+    .on('end',check('CSS Files'))
+    
+  gulp.src('src/css/css.conf')
+    .pipe(gulp.dest('build/src/css'))
+
+
+  //less
+  gulp.src('src/css/**/*.less')
+    .pipe(gulpif(jetConfig.buildCssWithLess,less()))
+    .pipe(gulpif(jetConfig.compressCss,cleanCSS({compatibility: 'ie8'})))
+    .pipe(gulp.dest('build/src/css'))
+    .on('end',check('LESS Files'))
+
+
+  if(jetConfig.commonLess){
+    gulp.src('src/css/common.css')
+      .pipe(gulpif(jetConfig.buildCssWithLess,less()))
+      .pipe(gulpif(jetConfig.compressCss,cleanCSS({compatibility: 'ie8'})))
+      .pipe(gulp.dest('build/src/css'))
+  }
+
+  //image
+  gulp.src('src/image/**/*')
+    .pipe(gulp.dest('build/src/image'))
+    .on('end',check('Images Files'))
+
+  //media
+  gulp.src('src/media/**/*')
+    .pipe(gulp.dest('build/src/media'))
+    .on('end',check('Media Files'))
+}
+
+
+
 
 
 

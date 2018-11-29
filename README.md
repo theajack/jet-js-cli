@@ -82,7 +82,9 @@ In the `build.config.json` file in the root directory, there are the following c
 	"compressHtml": true,
 	"compressCss": true,
 	"compressJs": true,
-	"buildJsWithBabel": false
+	"buildJsWithBabel": false,
+	"buildCssWithLess": false,
+	"commonLess": false
 },
 ...
 </pre>
@@ -97,6 +99,8 @@ The meaning of each parameter is as follows
 |compressCss|true|是否压缩css文件|
 |compressJs|true|是否压缩js文件|
 |buildJsWithBabel|false|是否将es6转为es5|
+|buildCssWithLess|false|是否将less转为css|
+|commonLess|false|是否将common.css文件作为less文件编译|
 
 <br>
 
@@ -106,7 +110,11 @@ The meaning of each parameter is as follows
 |compressCss|true|Currently compress css files|
 |compressJs|true|whether to compress js files|
 |buildJsWithBabel|false| Whether to convert es6 to es5|
+|buildCssWithLess|false|Whether to turn less to css|
+|commonLess|false| Whether to compile the common.css file as a less file|
 
--备注：若您使用es6开发，虽然支持配置 buildJsWithBabel 后在生产环境中转es5。但在开发环境中，请使用es6兼容性较好的浏览器，例如高版本的Chrome。因为在开发环境中，Jet并没有对es6转es5.
+-备注1：若您在开发中使用es6或less，请引入相应的官方库，详细教程请参考 [Jet APi](https://www.jet-js.com).
+-备注2：当设置了 buildJsWithBabel 或 buildCssWithLess 为true 时，compressHtml参数会强制使用true ，这是因为需要处理html文件中的js和css代码。
 
-- Note: If you use es6 development, although support for configuring buildJsWithBabel, transfer es5 in the production environment. But in a development environment, use a browser with better es6 compatibility, such as a higher version of Chrome. Because in the development environment, Jet did not turn es5 to es5.
+- Note 1: If you use es6 or less in development, please introduce the corresponding official library. For detailed tutorials, please refer to [Jet APi] (https://www.jet-js.com).
+- Note 2: When buildJsWithBabel or buildCssWithLess is set to true, the compressHtml parameter forces true, which is due to the need to process the js and css code in the html file.

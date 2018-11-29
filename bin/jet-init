@@ -6,7 +6,6 @@ const inquirer = require('inquirer');
 const handlebars = require('handlebars');
 const progress = require('log-progress');
 const fs = require('fs');
-const ora = require('ora');
 const chalk = require('chalk');
 
 const gitUrl='github:theajack/jet-template';
@@ -80,11 +79,7 @@ function init(name){
 function downloadProject(answers) {
   log.n()
   start();
-  // const spinner = ora('Downloading Jet template.')
-  // log.start()
-  // setTimeout(function(){
-  //   spinner.succeed();
-  // },2000)
+
   download(gitUrl,answers.name,(err) => {
     if(progress.isPause()){
       progress.start();
@@ -97,9 +92,11 @@ function downloadProject(answers) {
     fs.writeFileSync(fileName, result);
     if(err){
       progress.fail('Failed')
+      log.n();
       log.red('Project creation failed');
     }else{
       progress.complete('Succeed')
+      log.n();
       log.green('Project creation succeed! in '+((new Date())-date)+' ms.');
     }
     log.n();
